@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { scan } from './scanner.js';
 import { sortByModifiedDate } from './sort.js';
+import { formatFiles } from './formatter.js';
 
 // create a program instance to ensure Command is used
 const program = new Command();
@@ -16,8 +17,9 @@ program
         try {
             const files = await scan(directory);
             const sortedFiles = sortByModifiedDate(files);
+            const output = formatFiles(sortedFiles);
             console.log(`Found ${files.length} files in directory: ${directory}`);
-            console.log(sortedFiles);
+            console.log(output);
         } catch (error) {
             console.error('Error scanning directory:', error);
 
