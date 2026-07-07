@@ -1,9 +1,25 @@
 export function formatTime(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    let timeAgo = '';
+    if (diffInSeconds < 5) {
+        timeAgo = 'Just now';
+    } else if (diffInSeconds < 60) {
+        timeAgo = `${diffInSeconds} seconds ago`;
+    } else if (diffInSeconds < 3600) {
+        timeAgo = `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    } else if (diffInSeconds < 86400) {
+        timeAgo = `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    } else if (diffInSeconds < 604800) {
+        timeAgo = `${Math.floor(diffInSeconds / 86400)} days ago`;
+    } else if (diffInSeconds < 2592000) {
+        timeAgo = `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+    } else if (diffInSeconds < 31536000) {
+        timeAgo = `${Math.floor(diffInSeconds / 2592000)} months ago`;
+    } else {
+        timeAgo = `${Math.floor(diffInSeconds / 31536000)} years ago`;
+    }
+
+    return timeAgo;
 }
