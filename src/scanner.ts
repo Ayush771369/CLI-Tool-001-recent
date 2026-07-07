@@ -1,7 +1,7 @@
 import { promises as fs ,Stats } from 'fs';
-import type { FileInfo } from './types.js';
+import type { FileInfo, ScanOptions } from './types.js';
 import path from 'path/win32';
-
+import { IGNORED_DIRECTORIES } from './constants.js';
 /**
  * Validate that the given path exists and is a directory.
  * Throws an Error if the path does not exist or is not a directory.
@@ -23,7 +23,7 @@ export async function validateDirectory(directory: string): Promise<Stats> {
 
 export default validateDirectory;
 
-export async function scan(directory: string): Promise<FileInfo[]>
+export async function scan(directory: string, options: ScanOptions): Promise<FileInfo[]>
 {
     const files: FileInfo[] = [];
     const entries = await fs.readdir(directory, { withFileTypes: true });
@@ -32,17 +32,21 @@ export async function scan(directory: string): Promise<FileInfo[]>
         const fullPath = path.join(directory, entry.name);
         
         if (entry.isDirectory()) {
-            const nestedFiles = await scan(fullPath);
-            files.push(...nestedFiles);
+            if (!options.ignoredDirectories.has(entry.name)) {
+                const nestedFiles = await scan(fullPath, options);
+                files.push(...nestedFiles);
+            }
         } else if (entry.isFile()) {
-            const stat = await fs.stat(fullPath);
-            const fileInfo: FileInfo = {
-                absolutepath: fullPath,
-                name: entry.name,
-                sizeBytes: stat.size,
-                modifiedAt: stat.mtime,
-            };
-            files.push(fileInfo);
+            if (!options.ignoredFiles.has(entry.name)) {
+                const stat = await fs.stat(fullPath);
+                const fileInfo: FileInfo = {
+                    absolutepath: fullPath,
+                    name: entry.name,
+                    sizeBytes: stat.size,
+                    modifiedAt: stat.mtime,
+                };
+                files.push(fileInfo);
+            }
         }
     }
     
