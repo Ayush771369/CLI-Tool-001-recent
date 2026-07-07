@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { scan } from './scanner.js';
 import { sortByModifiedDate } from './sort.js';
 import { formatFiles } from './formatter.js';
+import { parse } from 'node:path';
 
 // create a program instance to ensure Command is used
 const program = new Command();
@@ -13,11 +14,12 @@ program
 
 program
     .argument('<directory>', 'Directory to scan')
-    .action(async (directory: string) => {
+    .option('-n, --limit <number>', 'Limit the number of files displayed', parseInt, 20)
+    .action(async (directory: string, options: { limit: number }) => {
         try {
             const files = await scan(directory);
             const sortedFiles = sortByModifiedDate(files);
-            const output = formatFiles(sortedFiles);
+            const output = formatFiles(sortedFiles, options.limit);
             console.log(`Found ${files.length} files in directory: ${directory}`);
             console.log(output);
         } catch (error) {
