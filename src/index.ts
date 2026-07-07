@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from 'commander';
 import { scan } from './scanner.js';
 import { sortByModifiedDate } from './sort.js';
